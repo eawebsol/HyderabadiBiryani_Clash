@@ -1,0 +1,6 @@
+{
+  "name": "Biryani Clash: Hyderabad Edition",
+  "description": "Settle the group chat debate once and for all: live voting, insider gali gems, street-slang alerts, and toss decider for authentic Hyderabadi biryani.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1528 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biryani Clash: Hyderabad Edition</title>
+    <meta name="description" content="Settle the group chat debate once and for all: live voting, insider gali gems, street-slang alerts, and toss decider for authentic Hyderabadi biryani." />
+    <meta property="og:title" content="Biryani Clash: Hyderabad Edition" />
+    <meta property="og:description" content="Settle the group chat debate once and for all: live voting, insider gali gems, street-slang alerts, and toss decider for authentic Hyderabadi biryani." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- External CDN dependencies (strictly zero npm installs as mandated) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- Google Fonts for authentic heritage & modern UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Rozha+One&display=swap" rel="stylesheet">
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+              display: ['Outfit', 'sans-serif'],
+              heritage: ['Rozha One', 'serif']
+            },
+            colors: {
+              zafran: {
+                50: '#fffbeb',
+                100: '#fef3c7',
+                200: '#fde68a',
+                300: '#fcd34d',
+                400: '#fbbf24',
+                500: '#f59e0b',
+                600: '#d97706',
+                700: '#b45309',
+                800: '#92400e',
+                900: '#78350f'
+              },
+              mirchi: {
+                500: '#ef4444',
+                600: '#dc2626',
+                700: '#b91c1c',
+                800: '#991b1b',
+                900: '#7f1d1d'
+              },
+              nizam: {
+                800: '#1e1b4b',
+                900: '#0f172a',
+                950: '#090d16'
+              }
+            },
+            animation: {
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'bounce-short': 'bounce 0.6s infinite',
+              'flame': 'flame 0.8s ease-in-out infinite alternate'
+            },
+            keyframes: {
+              flame: {
+                '0%': { transform: 'scale(1) rotate(-2deg)' },
+                '100%': { transform: 'scale(1.15) rotate(2deg)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #0c0f17;
+        color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .biryani-gradient {
+        background: linear-gradient(135deg, #1e130c 0%, #291206 50%, #150a04 100%);
+      }
+      .gold-text-gradient {
+        background: linear-gradient(to right, #fde68a, #f59e0b, #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .flame-shadow {
+        box-shadow: 0 0 25px -3px rgba(245, 158, 11, 0.35);
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #f59e0b;
+      }
+    </style>
+  </head>
+  <body class="selection:bg-zafran-500 selection:text-black min-h-screen">
+    <div id="root"></div>
+
+    <!-- Inline React Application with Babel Standalone -->
+    <script type="text/babel">
+      const { useState, useEffect, useMemo, useRef } = React;
+
+      // --- AUTHENTIC DATASET AS MANDATED (WITH PRE-SEEDED SPICE LEVELS) ---
+      const INITIAL_SPOTS = [
+        {
+          id: 'sohail-malakpet',
+          name: 'Hotel Sohail',
+          location: 'Malakpet Gali',
+          dish: 'Late-night Kaliyan & Dum Biryani (Secret goldmine)',
+          parking: 'Road pe lagaye toh challan pakka',
+          distance: 4.2,
+          isSecretGem: true,
+          votes: 18,
+          tag: 'Late-night Kaliyan Cult',
+          spiceLevel: 4,
+          spiceTier: 'Medium', // Pre-seeded: Hotel Sohail: Medium
+          meatType: 'Mutton & Kaliyan',
+          price: '₹₹ (Student/Pocket Friendly)',
+          timings: 'Till 3:30 AM',
+          specialWarning: null,
+          landmark: 'Opposite Old Police Station Gali'
+        },
+        {
+          id: 'meridian-panjagutta',
+          name: 'Meridian Restaurant',
+          location: 'Panjagutta',
+          dish: 'Double Masala Mutton + Extra Raita (Ask gently, purana lafda mat yaad dilao)',
+          parking: 'Basement chaos',
+          distance: 6.1,
+          isSecretGem: false,
+          votes: 24,
+          tag: 'Double Masala Heavyweight',
+          spiceLevel: 5,
+          spiceTier: 'Spicy', // Pre-seeded: Meridian: Spicy
+          meatType: 'Juicy Mutton',
+          price: '₹₹₹ (Standard Iconic)',
+          timings: '11:30 AM - 1:00 AM',
+          specialWarning: '🥛 Khabardaar! Meridian me extra raita mangte waqt aawaz dheemi rakho... purana itihaas hai!',
+          landmark: 'Below Panjagutta Flyover'
+        },
+        {
+          id: 'cafe-bahar-basheerbagh',
+          name: 'Cafe Bahar',
+          location: 'Basheerbagh',
+          dish: 'Bahar Special Zafrani Mutton + Mirchi ka Salan',
+          parking: 'Side gali adjustment',
+          distance: 3.8,
+          isSecretGem: false,
+          votes: 21,
+          tag: 'Zafrani Heritage King',
+          spiceLevel: 5,
+          spiceTier: 'Spicy', // Pre-seeded: Cafe Bahar: Spicy
+          meatType: 'Zafrani Mutton',
+          price: '₹₹₹ (Classic Family Adda)',
+          timings: '11:00 AM - 12:30 AM',
+          specialWarning: null,
+          landmark: 'Hyderguda Cross Road'
+        },
+        {
+          id: 'chichas-lakdikapul',
+          name: "Chicha's",
+          location: 'Lakdikapul',
+          dish: 'Talawa Gosht + Biryani Rice Combo',
+          parking: 'Auto bhai help',
+          distance: 5.0,
+          isSecretGem: true,
+          votes: 19,
+          tag: 'Talawa Gosht Gali Boss',
+          spiceLevel: 5,
+          spiceTier: 'Spicy', // Pre-seeded: Chicha's: Spicy
+          meatType: 'Crispy Fried Gosht',
+          price: '₹₹₹ (Youth Chillout)',
+          timings: '12:30 PM - 2:00 AM',
+          specialWarning: null,
+          landmark: 'Near Lakdikapul Bridge'
+        },
+        {
+          id: 'shadab-ghansi-bazaar',
+          name: 'Hotel Shadab',
+          location: 'Ghansi Bazaar',
+          dish: 'Zafrani Mutton Biryani + Paye Soup',
+          parking: 'Bike only, 4-wheeler impossible',
+          distance: 7.8,
+          isSecretGem: false,
+          votes: 22,
+          tag: 'Charminar Nizami Royalty',
+          spiceLevel: 4,
+          spiceTier: 'Medium', // Pre-seeded: Hotel Shadab: Medium
+          meatType: 'Tender Zafrani Mutton',
+          price: '₹₹ (Heritage Legend)',
+          timings: '6:00 AM (Paye) - 1:30 AM',
+          specialWarning: null,
+          landmark: 'Near Madina Building / High Court'
+        },
+        {
+          id: 'grand-hotel-abids',
+          name: 'Grand Hotel',
+          location: 'Abids (Est. 1935)',
+          dish: 'Vintage Dum Biryani with Bun Maska & Kadak Chai',
+          parking: 'Late night road-side',
+          distance: 2.8,
+          isSecretGem: false,
+          votes: 15,
+          tag: 'Est. 1935 Irani Legacy',
+          spiceLevel: 2,
+          spiceTier: 'Mild', // Pre-seeded: Grand Hotel: Mild
+          meatType: 'Classic Dum Mutton',
+          price: '₹₹ (Old Hyderabad Soul)',
+          timings: '6:00 AM - 2:00 AM',
+          specialWarning: null,
+          landmark: 'Abids Circle'
+        },
+        {
+          id: 'rumaan-tolichowki',
+          name: 'Rumaan Restaurant',
+          location: 'Tolichowki',
+          dish: 'Pocket-rocket Masala Beef Biryani',
+          parking: 'Basement slot',
+          distance: 9.2,
+          isSecretGem: true,
+          votes: 17,
+          tag: 'Tolichowki Secret Bullet',
+          spiceLevel: 5,
+          spiceTier: 'Spicy', // Pre-seeded: Rumaan: Spicy
+          meatType: 'Beef Dum Biryani',
+          price: '₹ (VFM Monster)',
+          timings: '12:00 PM - 1:00 AM',
+          specialWarning: null,
+          landmark: 'Tolichowki Main Road'
+        }
+      ];
+
+      // --- WEB AUDIO API SOUND GENERATOR ---
+      const playSynthesizedSound = (type) => {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const now = ctx.currentTime;
+
+          if (type === 'vote') {
+            // Sizzle pop
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          } else if (type === 'toss') {
+            // Coin tick
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(950, now);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.08);
+          } else if (type === 'win') {
+            // Victory fanfare
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'square';
+              osc.frequency.setValueAtTime(freq, now + i * 0.1);
+              gain.gain.setValueAtTime(0.15, now + i * 0.1);
+              gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.35);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(now + i * 0.1);
+              osc.stop(now + i * 0.1 + 0.35);
+            });
+          } else if (type === 'error') {
+            // Baigan error buzzer
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.setValueAtTime(110, now + 0.12);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.28);
+          }
+        } catch (e) {
+          // AudioContext might be blocked or unavailable, ignore safely
+        }
+      };
+
+      // --- SVG ICONS INLINED FOR PURE ZERO-DEPENDENCY STABILITY ---
+      const Icons = {
+        Flame: ({ className = "w-5 h-5 text-amber-500" }) => (
+          <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.28 2.05a.75.75 0 0 0-.96.22C9.57 4.54 7 8.35 7 12a5 5 0 0 0 10 0c0-1.87-.66-3.8-1.74-5.6-.47-.78-.97-1.52-1.48-2.2-.28-.38-.6-.73-.9-1.07a.75.75 0 0 0-.6-.28zm-1.12 7.77c.38-.47.9-.9 1.4-1.32.78 1.44 1.44 2.8 1.44 4.5a3 3 0 0 1-6 0c0-1.55.93-3.2 1.88-4.68.4.52.87 1.05 1.28 1.5z" />
+          </svg>
+        ),
+        Crown: ({ className = "w-6 h-6 text-yellow-400" }) => (
+          <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.5 19h19a1 1 0 0 1 1 1v1.5a.5.5 0 0 1-.5.5h-20a.5.5 0 0 1-.5-.5V20a1 1 0 0 1 1-1zm2.7-14.88a1.25 1.25 0 0 1 2.09.21L10 9.2l3.21-4.87a1.25 1.25 0 0 1 2.09 0L19.5 15.5H4.5L5.2 4.12z" />
+          </svg>
+        ),
+        Car: ({ className = "w-4 h-4" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 17a2 2 0 100-4 2 2 0 000 4zm8 0a2 2 0 100-4 2 2 0 000 4zM3 9l2.5-5h13L21 9v7a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H6v1a1 1 0 01-1 1H4a1 1 0 01-1-1V9z" />
+          </svg>
+        ),
+        Navigation: ({ className = "w-4 h-4" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <polygon points="3 11 22 2 13 21 11 13 3 11" />
+          </svg>
+        ),
+        Dice: ({ className = "w-5 h-5" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+            <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+            <circle cx="8" cy="16" r="1.5" fill="currentColor" />
+            <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+          </svg>
+        ),
+        WhatsApp: ({ className = "w-5 h-5 text-emerald-400" }) => (
+          <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.204 8.204 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.44 0-2.86-.38-4.11-1.09l-.29-.17-3.12.82.83-3.04-.19-.31a8.196 8.196 0 0 1-1.26-4.44c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.19-.09-1.12-.55-1.3-.61-.17-.07-.3-.1-.43.1-.12.19-.48.61-.59.74-.11.12-.22.14-.41.05-.19-.09-.81-.3-1.54-.95-.57-.51-.96-1.14-1.07-1.33-.11-.19-.01-.3.08-.39.09-.08.19-.22.28-.33.1-.11.13-.19.19-.31.07-.12.03-.23-.02-.32-.05-.09-.43-1.04-.59-1.43-.16-.38-.32-.33-.43-.33h-.37c-.13 0-.34.05-.52.24-.18.19-.68.66-.68 1.62s.7 1.88.79 2.01c.1.13 1.37 2.1 3.32 2.94.46.2.83.32 1.11.41.47.15.89.13 1.23.08.38-.06 1.12-.46 1.28-.9.16-.44.16-.82.11-.9-.05-.08-.18-.13-.37-.22z"/>
+          </svg>
+        ),
+        Sparkles: ({ className = "w-4 h-4 text-zafran-400" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+        ),
+        Warning: ({ className = "w-5 h-5 text-amber-400" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        ),
+        ShieldCheck: ({ className = "w-4 h-4" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        ),
+        Plus: ({ className = "w-4 h-4" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        ),
+        Close: ({ className = "w-5 h-5" }) => (
+          <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        )
+      };
+
+      // --- MAIN COMPONENT ---
+      function App() {
+        // Spots list loaded from LocalStorage or seeded with authentic dataset
+        const [spots, setSpots] = useState(() => {
+          try {
+            const saved = localStorage.getItem('hyderabad_biryani_spots');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              // Backfill or reconcile spiceTier if loading from older localStorage
+              return parsed.map(spot => {
+                if (spot.spiceTier) return spot;
+                if (spot.id === 'grand-hotel-abids') return { ...spot, spiceTier: 'Mild', spiceLevel: 2 };
+                if (spot.id === 'sohail-malakpet' || spot.id === 'shadab-ghansi-bazaar') return { ...spot, spiceTier: 'Medium', spiceLevel: 4 };
+                return { ...spot, spiceTier: 'Spicy', spiceLevel: 5 };
+              });
+            }
+          } catch (e) {}
+          return INITIAL_SPOTS;
+        });
+
+        // Track user session votes (prevents duplicate voting on same spot)
+        const [votedIds, setVotedIds] = useState(() => {
+          try {
+            const saved = localStorage.getItem('hyderabad_biryani_voted_ids');
+            if (saved) return JSON.parse(saved);
+          } catch (e) {}
+          return [];
+        });
+
+        // Filter states
+        const [maxDistance, setMaxDistance] = useState(15);
+        const [onlySecretGems, setOnlySecretGems] = useState(false);
+        const [selectedSpiceLevel, setSelectedSpiceLevel] = useState('all'); // 'all', 'Mild', 'Medium', 'Spicy'
+        const [searchQuery, setSearchQuery] = useState('');
+        const [sortBy, setSortBy] = useState('votes'); // 'votes', 'distance', 'spice'
+
+        // UI states
+        const [toasts, setToasts] = useState([]);
+        const [isTossing, setIsTossing] = useState(false);
+        const [tossWinner, setTossWinner] = useState(null);
+        const [showAddModal, setShowAddModal] = useState(false);
+        const [showSlangGlossary, setShowSlangGlossary] = useState(false);
+        const [justVotedId, setJustVotedId] = useState(null);
+        const [copiedToast, setCopiedToast] = useState(false);
+
+        // Sync spots and voted IDs to localStorage
+        useEffect(() => {
+          try {
+            localStorage.setItem('hyderabad_biryani_spots', JSON.stringify(spots));
+          } catch (e) {}
+        }, [spots]);
+
+        useEffect(() => {
+          try {
+            localStorage.setItem('hyderabad_biryani_voted_ids', JSON.stringify(votedIds));
+          } catch (e) {}
+        }, [votedIds]);
+
+        // Trigger distance slang alert if user cranks slider above 12km
+        const lastAlertedDistance = useRef(null);
+        useEffect(() => {
+          if (maxDistance >= 13 && lastAlertedDistance.current !== maxDistance) {
+            lastAlertedDistance.current = maxDistance;
+            addToast("✈️ Arey bhai, Shamshabad flight pakad ke jaate kya biryani khane? Aas-paas ka filter lagao!", "warning");
+          }
+        }, [maxDistance]);
+
+        // Toast Helper
+        const addToast = (message, type = 'info') => {
+          playSynthesizedSound(type === 'error' || type === 'warning' ? 'error' : 'vote');
+          const id = Date.now() + Math.random();
+          setToasts(prev => [...prev.slice(-3), { id, message, type }]);
+          setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+          }, 4200);
+        };
+
+        // Filter and sort spots (respecting Distance, Secret Gems, Spice Level, and Search)
+        const filteredSpots = useMemo(() => {
+          return spots
+            .filter(spot => {
+              if (spot.distance > maxDistance) return false;
+              if (onlySecretGems && !spot.isSecretGem) return false;
+              if (selectedSpiceLevel !== 'all' && spot.spiceTier !== selectedSpiceLevel) return false;
+              if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matchName = spot.name.toLowerCase().includes(q);
+                const matchLoc = spot.location.toLowerCase().includes(q);
+                const matchDish = spot.dish.toLowerCase().includes(q);
+                const matchSpice = (spot.spiceTier || '').toLowerCase().includes(q);
+                if (!matchName && !matchLoc && !matchDish && !matchSpice) return false;
+              }
+              return true;
+            })
+            .sort((a, b) => {
+              if (sortBy === 'votes') return b.votes - a.votes;
+              if (sortBy === 'distance') return a.distance - b.distance;
+              if (sortBy === 'spice') return b.spiceLevel - a.spiceLevel;
+              return 0;
+            });
+        }, [spots, maxDistance, onlySecretGems, selectedSpiceLevel, searchQuery, sortBy]);
+
+        // Spice Level counts across available dataset
+        const spiceCounts = useMemo(() => {
+          return {
+            all: spots.length,
+            Mild: spots.filter(s => s.spiceTier === 'Mild').length,
+            Medium: spots.filter(s => s.spiceTier === 'Medium').length,
+            Spicy: spots.filter(s => s.spiceTier === 'Spicy').length
+          };
+        }, [spots]);
+
+        // Leaderboard stats & group winner
+        const allSortedByVotes = useMemo(() => {
+          return [...spots].sort((a, b) => b.votes - a.votes);
+        }, [spots]);
+
+        const topSpot = allSortedByVotes[0];
+        const secondSpot = allSortedByVotes[1];
+        const totalVotes = spots.reduce((acc, s) => acc + s.votes, 0);
+
+        // --- UPVOTE HANDLER WITH STREET-SLANG DUPLICATE CHECK ---
+        const handleVote = (spotId) => {
+          if (votedIds.includes(spotId)) {
+            // Authentic duplicate vote street-slang error
+            addToast("🛑 Kya miyan, ek hi dukan ko do do baar vote daalre? Chindi chorgiri nako karo!", "error");
+            return;
+          }
+
+          // Successful vote
+          playSynthesizedSound('vote');
+          setJustVotedId(spotId);
+          setTimeout(() => setJustVotedId(null), 1000);
+
+          setSpots(prev =>
+            prev.map(s => s.id === spotId ? { ...s, votes: s.votes + 1 } : s)
+          );
+          setVotedIds(prev => [...prev, spotId]);
+
+          // Confetti burst for leading spot vote
+          if (spotId === topSpot.id && window.confetti) {
+            window.confetti({
+              particleCount: 40,
+              spread: 60,
+              origin: { y: 0.7 }
+            });
+          }
+
+          addToast("🔥 Zabardast! Ek dum solid vote gir gaya!", "success");
+        };
+
+        // Undo vote if user wants to change
+        const handleUndoVote = (spotId) => {
+          setSpots(prev =>
+            prev.map(s => s.id === spotId ? { ...s, votes: Math.max(0, s.votes - 1) } : s)
+          );
+          setVotedIds(prev => prev.filter(id => id !== spotId));
+          addToast("Hatt miyan! Vote wapas le liye? Chalo theek hai.", "info");
+        };
+
+        // --- TOSS KARO (RANDOM DECIDER) WITH ANIMATION & SOUND ---
+        const handleTossKaro = () => {
+          if (filteredSpots.length === 0) {
+            const spiceMsg = selectedSpiceLevel !== 'all' ? ` for "${selectedSpiceLevel}" spice` : '';
+            addToast(`Baigan! Filter me ek bhi dukan nahi bachi${spiceMsg}, toss kisme karein?`, "error");
+            return;
+          }
+
+          setIsTossing(true);
+          playSynthesizedSound('toss');
+
+          let counter = 0;
+          const interval = setInterval(() => {
+            playSynthesizedSound('toss');
+            counter++;
+            if (counter > 14) {
+              clearInterval(interval);
+              const luckySpot = filteredSpots[Math.floor(Math.random() * filteredSpots.length)];
+              setTossWinner(luckySpot);
+              setIsTossing(false);
+              playSynthesizedSound('win');
+
+              if (window.confetti) {
+                window.confetti({
+                  particleCount: 120,
+                  spread: 80,
+                  origin: { y: 0.5 },
+                  colors: ['#f59e0b', '#dc2626', '#fbbf24', '#ffffff']
+                });
+              }
+            }
+          }, 90);
+        };
+
+        // --- WHATSAPP PLAN LOCKER (1-CLICK CLIPBOARD + HYDERABADI FORMAT) ---
+        const handleLockPlanOnWhatsApp = (targetSpot = topSpot) => {
+          if (!targetSpot) return;
+
+          const shareText = `🔥 *BIRYANI CLASH: HYDERABAD DECISION LOCKED!* 🔥\n\n` +
+            `👑 *Final Spot:* ${targetSpot.name} (${targetSpot.location})\n` +
+            `🗳️ *Group Mandate:* ${targetSpot.votes} Votes (${totalVotes > 0 ? Math.round((targetSpot.votes / totalVotes) * 100) : 100}% of group)\n` +
+            `🌶️ *Spice Profile:* ${targetSpot.spiceTier || 'Authentic'} (${targetSpot.spiceLevel || 4}/5 Tikha)\n` +
+            `🍗 *Must Order:* ${targetSpot.dish}\n` +
+            `🚗 *Parking Scene:* ${targetSpot.parking}\n` +
+            `📍 *Distance:* ~${targetSpot.distance} km | Timings: ${targetSpot.timings}\n\n` +
+            `🗣️ _"Arey bawa chup chap sab log 9:30 PM tak pohcho! Late kare toh khali kushka aur pyaz khana padta!"_\n\n` +
+            `✅ Decided via Biryani Clash (No more group chat lafda)`;
+
+          navigator.clipboard.writeText(shareText).then(() => {
+            setCopiedToast(true);
+            playSynthesizedSound('win');
+            if (window.confetti) {
+              window.confetti({ particleCount: 60, spread: 70, origin: { y: 0.8 } });
+            }
+            setTimeout(() => setCopiedToast(false), 3000);
+          }).catch(() => {
+            // Fallback for older browsers
+            prompt("Copy this formatted plan for WhatsApp:", shareText);
+          });
+        };
+
+        // Reset session votes
+        const handleResetVotes = () => {
+          if (confirm("Ustaad, sachme poore votes reset karna hai? Naya poll shuru hoga!")) {
+            setSpots(INITIAL_SPOTS);
+            setVotedIds([]);
+            localStorage.removeItem('hyderabad_biryani_spots');
+            localStorage.removeItem('hyderabad_biryani_voted_ids');
+            addToast("Chalo! Naye sire se degh kholi gayi. Daalo fresh votes!", "info");
+          }
+        };
+
+        // Parking alert handler
+        const triggerParkingAlert = (spot) => {
+          if (spot.id === 'meridian-panjagutta') {
+            addToast("⚠️ Ustaad, Panjagutta basement me gaadi phasi toh 1 ghanta nikalna mushkil hai! Bumper laga dete!", "warning");
+          } else if (spot.id === 'shadab-ghansi-bazaar') {
+            addToast("⚠️ Ustaad, Madina building ke paas 4-wheeler leke gaye toh traffic police utha leke chal jaati! Baigan me mil jaata scene!", "warning");
+          } else {
+            addToast(`⚠️ Ustaad: ${spot.parking}! Gaadi dhyan se lagao nahi toh challan pakka!`, "warning");
+          }
+        };
+
+        return (
+          <div className="min-h-screen bg-[#0a0d14] text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+            {/* Top Atmospheric Nizami Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[320px] bg-gradient-to-b from-amber-600/20 via-red-900/10 to-transparent blur-3xl pointer-events-none -z-10" />
+
+            {/* HEADER */}
+            <header className="border-b border-amber-950/40 bg-[#0f1420]/80 backdrop-blur-md sticky top-0 z-30">
+              <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 via-zafran-600 to-red-700 flex items-center justify-center shadow-lg shadow-amber-900/40 border border-amber-400/30">
+                    <span className="text-2xl" role="img" aria-label="Biryani Handi">🍗</span>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase tracking-widest font-extrabold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                        Official Group Arbiter
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        Dum Chalu Hai
+                      </span>
+                    </div>
+                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                      Biryani Clash <span className="text-amber-400 text-sm font-semibold tracking-normal px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800/40">Hyderabad Edition</span>
+                    </h1>
+                  </div>
+                </div>
+
+                {/* Quick actions & stats in header */}
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                  <button
+                    onClick={() => {
+                      addToast("🚗 Masab Tank aur Panjagutta pe bumper-to-bumper jaam hai bawa! Biryani thandi ho jaati!", "warning");
+                    }}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/50 border border-red-800/40 text-red-300 flex items-center gap-1.5 transition active:scale-95"
+                    title="Live Traffic Update"
+                  >
+                    <span>🚗</span>
+                    <span className="hidden xs:inline">Check</span> Traffic Jam
+                  </button>
+
+                  <button
+                    onClick={() => setShowSlangGlossary(true)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-amber-950/40 hover:bg-amber-900/50 border border-amber-700/40 text-amber-300 flex items-center gap-1.5 transition active:scale-95"
+                  >
+                    <span>🗣️</span>
+                    <span>Dakhni Slang Box</span>
+                  </button>
+
+                  <button
+                    onClick={handleResetVotes}
+                    className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+                    title="Reset Poll for New Debate"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            {/* MAIN CONTENT WRAPPER */}
+            <main className="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+              {/* DYNAMIC #1 GROUP WINNER BANNER */}
+              {topSpot && (
+                <section className="relative overflow-hidden rounded-3xl border-2 border-amber-500/50 bg-gradient-to-r from-[#241308] via-[#331809] to-[#1c0d05] p-5 sm:p-7 shadow-2xl shadow-amber-950/60">
+                  {/* Subtle degh background decoration */}
+                  <div className="absolute right-0 top-0 translate-x-8 -translate-y-6 text-9xl opacity-10 pointer-events-none select-none">
+                    👑
+                  </div>
+
+                  <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 rounded-full bg-amber-400 text-black text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md">
+                          <Icons.Crown className="w-4 h-4 text-black" />
+                          #1 Group Winner Right Now
+                        </span>
+                        <span className="text-xs text-amber-300/80 font-medium">
+                          Leading by {topSpot.votes - (secondSpot ? secondSpot.votes : 0)} votes
+                        </span>
+                      </div>
+
+                      <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight flex items-baseline gap-2">
+                        {topSpot.name}
+                        <span className="text-base sm:text-xl font-normal text-amber-300/80">({topSpot.location})</span>
+                      </h2>
+
+                      <p className="text-sm sm:text-base text-amber-100/90 font-medium max-w-2xl flex items-center gap-2">
+                        <span className="text-amber-400 font-bold">Must Order:</span>
+                        <span>{topSpot.dish}</span>
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
+                        <span className="bg-black/40 px-2.5 py-1 rounded-md border border-amber-900/50 text-amber-200">
+                          🗳️ {topSpot.votes} Total Votes ({totalVotes > 0 ? Math.round((topSpot.votes / totalVotes) * 100) : 0}%)
+                        </span>
+                        <span className="bg-black/40 px-2.5 py-1 rounded-md border border-amber-900/50 text-slate-300">
+                          📍 {topSpot.distance} km from Center
+                        </span>
+                        <button
+                          onClick={() => triggerParkingAlert(topSpot)}
+                          className="bg-black/40 px-2.5 py-1 rounded-md border border-red-900/50 text-red-300 hover:text-red-200 transition flex items-center gap-1 cursor-pointer"
+                        >
+                          <Icons.Car className="w-3.5 h-3.5 text-amber-400" />
+                          {topSpot.parking}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* WhatsApp Lock Plan CTA */}
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2 w-full md:w-auto">
+                      <button
+                        onClick={() => handleLockPlanOnWhatsApp(topSpot)}
+                        className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-emerald-950/50 flex items-center justify-center gap-2.5 transition active:scale-95 cursor-pointer border border-emerald-300/30 group"
+                      >
+                        <Icons.WhatsApp className="w-5 h-5 text-white transition group-hover:scale-110" />
+                        <span>Lock Plan on WhatsApp</span>
+                      </button>
+
+                      {copiedToast && (
+                        <div className="text-center text-xs font-bold text-emerald-400 animate-bounce">
+                          ✅ Pukka ho gaya! WhatsApp pe chipkao!
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* CONTROLS BAR: DISTANCE SLIDER, HIDDEN GEMS FILTER, SPICE LEVEL FILTER, AND TOSS KARO BUTTON */}
+              <section className="bg-[#121724] border border-slate-800/80 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+
+                  {/* Distance Slider */}
+                  <div className="md:col-span-5 space-y-2">
+                    <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <Icons.Navigation className="w-4 h-4 text-amber-400" />
+                        Max Distance Filter
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono text-sm border border-slate-700">
+                        Within {maxDistance} km
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="15"
+                      step="0.5"
+                      value={maxDistance}
+                      onChange={(e) => setMaxDistance(parseFloat(e.target.value))}
+                      className="w-full accent-amber-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-500 font-medium">
+                      <span>2 km (Walking Gali)</span>
+                      <span>8 km (City Core)</span>
+                      <span>15 km (Outer Ring)</span>
+                    </div>
+                  </div>
+
+                  {/* Toggle: Secret AI-Blind Spots Only */}
+                  <div className="md:col-span-4 flex items-center">
+                    <button
+                      onClick={() => setOnlySecretGems(!onlySecretGems)}
+                      className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-between transition border ${
+                        onlySecretGems
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500 shadow-md shadow-amber-950/40'
+                          : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{onlySecretGems ? '🤫' : '🔍'}</span>
+                        <span className="text-left leading-tight">
+                          Secret AI-Blind Spots
+                          <span className="block text-[10px] font-normal text-slate-400">
+                            {onlySecretGems ? 'Showing local insider gali joints' : 'Click to hide generic/touristy spots'}
+                          </span>
+                        </span>
+                      </div>
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                        onlySecretGems ? 'bg-amber-500 text-black font-extrabold' : 'bg-slate-800 text-slate-500'
+                      }`}>
+                        {onlySecretGems ? '✓' : '•'}
+                      </span>
+                    </button>
+                  </div>
+
+                  {/* "Toss Karo" Random Decider Button (respects all active filters including Spice Level) */}
+                  <div className="md:col-span-3">
+                    <button
+                      onClick={handleTossKaro}
+                      disabled={isTossing}
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-zafran-500 to-red-600 hover:from-amber-400 hover:to-red-500 text-black font-black text-sm shadow-xl shadow-amber-900/40 flex items-center justify-center gap-2 transition active:scale-95 disabled:opacity-50 cursor-pointer border border-amber-300/40"
+                    >
+                      <Icons.Dice className={`w-5 h-5 ${isTossing ? 'animate-spin' : ''}`} />
+                      <span>{isTossing ? "Toss Ghumra..." : "Toss Karo (Decider)"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* SPICE LEVEL FILTER: RADIO PILLS & DROPDOWN */}
+                <div className="pt-3 border-t border-slate-800/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <span>🌶️</span>
+                      <span>Spice Level Filter:</span>
+                    </span>
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                      Filter spots by Nizami spice intensity
+                    </span>
+                  </div>
+
+                  {/* Interactive Radio Button Pills for Spice Level */}
+                  <div className="flex flex-wrap items-center gap-2 w-full md:w-auto" role="radiogroup" aria-label="Spice Level Filter">
+                    {[
+                      { id: 'all', label: 'All', icon: '🍲', count: spiceCounts.all },
+                      { id: 'Mild', label: 'Mild', icon: '🟢', count: spiceCounts.Mild },
+                      { id: 'Medium', label: 'Medium', icon: '🟡', count: spiceCounts.Medium },
+                      { id: 'Spicy', label: 'Spicy', icon: '🔴', count: spiceCounts.Spicy }
+                    ].map(tier => {
+                      const isSelected = selectedSpiceLevel === tier.id;
+                      return (
+                        <label
+                          key={tier.id}
+                          className={`flex-1 sm:flex-initial cursor-pointer px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all select-none border ${
+                            isSelected
+                              ? tier.id === 'Mild'
+                                ? 'bg-emerald-950/70 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/40'
+                                : tier.id === 'Medium'
+                                ? 'bg-amber-950/70 border-amber-500 text-amber-200 shadow-md shadow-amber-950/40 ring-1 ring-amber-400/40'
+                                : tier.id === 'Spicy'
+                                ? 'bg-red-950/70 border-red-500 text-red-200 shadow-md shadow-red-950/40 ring-1 ring-red-400/40'
+                                : 'bg-slate-800 border-amber-500 text-amber-300 shadow-md'
+                              : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="spiceLevelRadio"
+                            value={tier.id}
+                            checked={isSelected}
+                            onChange={() => setSelectedSpiceLevel(tier.id)}
+                            className="sr-only"
+                          />
+                          <span className="text-xs">{tier.icon}</span>
+                          <span>{tier.label}</span>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                            isSelected ? 'bg-black/60 text-white' : 'bg-slate-800 text-slate-500'
+                          }`}>
+                            {tier.count || 0}
+                          </span>
+                        </label>
+                      );
+                    })}
+
+                    {/* Compact Dropdown Selector option */}
+                    <div className="hidden lg:block ml-1">
+                      <select
+                        value={selectedSpiceLevel}
+                        onChange={(e) => setSelectedSpiceLevel(e.target.value)}
+                        className="bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-amber-500 cursor-pointer"
+                        aria-label="Filter by spice level dropdown"
+                      >
+                        <option value="all">Sab Chalega (All: {spiceCounts.all})</option>
+                        <option value="Mild">🟢 Mild (Mellow: {spiceCounts.Mild})</option>
+                        <option value="Medium">🟡 Medium (Classic Dum: {spiceCounts.Medium})</option>
+                        <option value="Spicy">🔴 Spicy (Tezz: {spiceCounts.Spicy})</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sub-bar: Search & Sorting */}
+                <div className="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                  <div className="relative w-full sm:w-72">
+                    <input
+                      type="text"
+                      placeholder="Search spot, area, dish, or spice..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-slate-900/90 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                    />
+                    <span className="absolute left-2.5 top-2 text-slate-500">🔍</span>
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <span className="text-slate-400 font-medium">Sort by:</span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="bg-slate-900 border border-slate-800 text-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="votes">🔥 Most Group Votes</option>
+                      <option value="distance">📍 Distance (Closest)</option>
+                      <option value="spice">🌶️ Tikha Masala Level</option>
+                    </select>
+
+                    <button
+                      onClick={() => setShowAddModal(true)}
+                      className="px-3 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition flex items-center gap-1 font-semibold"
+                    >
+                      <Icons.Plus className="w-3.5 h-3.5" />
+                      <span>Add Gali Spot</span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              {/* LIST / GRID OF BIRYANI SPOTS */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-xs font-bold text-slate-400 px-1">
+                  <span>
+                    SHOWING {filteredSpots.length} OF {spots.length} JOINTS
+                    {selectedSpiceLevel !== 'all' && (
+                      <span className="text-amber-400 ml-1.5">
+                        • Filter: {selectedSpiceLevel} Spice Only
+                      </span>
+                    )}
+                  </span>
+                  <span>TAP UPVOTE (+1) TO LIFT YOUR SPOT</span>
+                </div>
+
+                {filteredSpots.length === 0 ? (
+                  <div className="text-center py-12 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800 p-6 space-y-3">
+                    <div className="text-4xl">🤦‍♂️</div>
+                    <h3 className="text-lg font-bold text-slate-200">
+                      Baigan! {selectedSpiceLevel !== 'all' ? `"${selectedSpiceLevel}" spice filter ke saath ` : ''}itna tight filter laga diye toh kuch nahi bachta!
+                    </h3>
+                    <p className="text-xs text-slate-400 max-w-md mx-auto">
+                      Distance slider ko badhao, Spice Level ko "All" karo ya "Secret AI-Blind Spots" toggle band karo bawa. Biryani khana hai ya bhooke so jana hai?
+                    </p>
+                    <button
+                      onClick={() => { setMaxDistance(15); setOnlySecretGems(false); setSelectedSpiceLevel('all'); setSearchQuery(''); }}
+                      className="px-4 py-2 rounded-lg bg-amber-500 text-black text-xs font-extrabold hover:bg-amber-400 transition"
+                    >
+                      Reset All Filters
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredSpots.map((spot, index) => {
+                      const isWinner = topSpot && topSpot.id === spot.id && topSpot.votes > 0;
+                      const hasVoted = votedIds.includes(spot.id);
+                      const isMeridian = spot.id === 'meridian-panjagutta';
+
+                      return (
+                        <div
+                          key={spot.id}
+                          className={`relative rounded-2xl transition-all duration-200 border p-4 sm:p-5 flex flex-col justify-between gap-4 ${
+                            isWinner
+                              ? 'bg-gradient-to-br from-[#211509] to-[#140e08] border-amber-500/60 shadow-xl shadow-amber-950/30 ring-1 ring-amber-500/20'
+                              : 'bg-[#111622] border-slate-800 hover:border-slate-700 shadow-md'
+                          } ${justVotedId === spot.id ? 'scale-[1.01] ring-2 ring-amber-400' : ''}`}
+                        >
+                          {/* Top row: Rank, Name, Secret Badge, Distance */}
+                          <div>
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center ${
+                                  index === 0
+                                    ? 'bg-amber-500 text-black shadow-md shadow-amber-500/30'
+                                    : index === 1
+                                    ? 'bg-slate-300 text-black'
+                                    : index === 2
+                                    ? 'bg-amber-700 text-white'
+                                    : 'bg-slate-800 text-slate-400'
+                                }`}>
+                                  #{index + 1}
+                                </span>
+
+                                <div>
+                                  <h3 className="text-lg font-extrabold text-white flex items-center gap-2 leading-tight">
+                                    {spot.name}
+                                  </h3>
+                                  <span className="text-xs text-amber-400/90 font-medium flex items-center gap-1">
+                                    📍 {spot.location}
+                                    {spot.landmark && <span className="text-slate-500 font-normal">({spot.landmark})</span>}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800/80 text-slate-300 border border-slate-700/50">
+                                  {spot.distance} km
+                                </span>
+                                {spot.isSecretGem && (
+                                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                                    🤫 AI-Blind Spot
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Tag / Vibe pill & Spice Tier Badge */}
+                            <div className="flex flex-wrap items-center gap-1.5 my-2.5">
+                              {/* Prominent Spice Level Pill */}
+                              <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-md border flex items-center gap-1 shadow-sm ${
+                                spot.spiceTier === 'Mild'
+                                  ? 'bg-emerald-950/70 text-emerald-300 border-emerald-600/60'
+                                  : spot.spiceTier === 'Medium'
+                                  ? 'bg-amber-950/70 text-amber-300 border-amber-600/60'
+                                  : 'bg-red-950/70 text-red-300 border-red-600/60'
+                              }`}>
+                                <span>{spot.spiceTier === 'Mild' ? '🟢' : spot.spiceTier === 'Medium' ? '🟡' : '🔴'}</span>
+                                <span>{spot.spiceTier} Spice</span>
+                              </span>
+
+                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-amber-200 border border-slate-700">
+                                {spot.tag}
+                              </span>
+                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-900 text-slate-400">
+                                🕒 {spot.timings}
+                              </span>
+                              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-900 text-slate-400">
+                                💰 {spot.price}
+                              </span>
+                            </div>
+
+                            {/* Must Order Dish callout */}
+                            <div className="bg-black/30 rounded-xl p-3 border border-amber-950/40 my-2 space-y-1">
+                              <div className="text-[10px] uppercase font-bold text-amber-400/80 tracking-wide flex items-center gap-1">
+                                <span>🍛 Must Order:</span>
+                              </div>
+                              <p className="text-xs font-bold text-slate-100 leading-snug">
+                                {spot.dish}
+                              </p>
+                            </div>
+
+                            {/* Meridian Special Raita Alert Trigger */}
+                            {isMeridian && (
+                              <button
+                                onClick={() => {
+                                  addToast("🥛 Khabardaar! Meridian me extra raita mangte waqt aawaz dheemi rakho... purana itihaas hai!", "warning");
+                                }}
+                                className="w-full text-left text-[11px] p-2 rounded-lg bg-red-950/30 border border-red-800/40 text-red-300 hover:bg-red-950/50 transition flex items-center gap-2 cursor-pointer mt-1"
+                              >
+                                <span className="text-sm">⚠️</span>
+                                <span className="font-semibold underline">Meridian Rule: Extra Raita alert! Tap to read protocol</span>
+                              </button>
+                            )}
+
+                            {/* Parking situation clickable chip with authentic Dakhni feedback */}
+                            <div className="mt-2 flex items-center justify-between text-xs pt-1">
+                              <button
+                                onClick={() => triggerParkingAlert(spot)}
+                                className="text-slate-400 hover:text-amber-300 transition flex items-center gap-1.5 cursor-pointer text-[11px]"
+                                title="Click for Parking Scene Details"
+                              >
+                                <Icons.Car className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                <span>Parking: <strong className="text-slate-300">{spot.parking}</strong></span>
+                              </button>
+
+                              {/* Spice Meter with Explicit Spice Tier Label */}
+                              <div className="flex items-center gap-1 text-[11px] text-slate-400" title={`Spice Level: ${spot.spiceTier} (${spot.spiceLevel}/5 Tikha)`}>
+                                <span className={`font-semibold ${
+                                  spot.spiceTier === 'Mild' ? 'text-emerald-400' : spot.spiceTier === 'Medium' ? 'text-amber-400' : 'text-red-400'
+                                }`}>
+                                  {spot.spiceTier}:
+                                </span>
+                                {[...Array(5)].map((_, i) => (
+                                  <span key={i} className={i < spot.spiceLevel ? "text-red-500" : "text-slate-700"}>🌶️</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bottom Row: Live Vote Button & Share */}
+                          <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xl font-black text-amber-400 font-mono">
+                                {spot.votes}
+                              </span>
+                              <span className="text-[11px] text-slate-400 font-medium">votes</span>
+                              {hasVoted && (
+                                <button
+                                  onClick={() => handleUndoVote(spot.id)}
+                                  className="text-[10px] text-slate-500 hover:text-red-400 underline ml-1 cursor-pointer"
+                                  title="Change your vote"
+                                >
+                                  (Undo)
+                                </button>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {/* 1-Click WhatsApp share for this individual spot */}
+                              <button
+                                onClick={() => handleLockPlanOnWhatsApp(spot)}
+                                className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition active:scale-95 cursor-pointer"
+                                title="Share this spot on WhatsApp"
+                              >
+                                <Icons.WhatsApp className="w-4 h-4 text-emerald-400" />
+                              </button>
+
+                              {/* Upvote Button with Flame animation & duplicate prevention */}
+                              <button
+                                onClick={() => handleVote(spot.id)}
+                                className={`px-4 py-2 rounded-xl font-black text-xs flex items-center gap-2 transition-all active:scale-90 cursor-pointer ${
+                                  hasVoted
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 hover:bg-amber-500/30'
+                                    : 'bg-gradient-to-r from-amber-500 to-zafran-600 hover:from-amber-400 hover:to-zafran-500 text-black shadow-lg shadow-amber-950/40'
+                                }`}
+                              >
+                                <span className={justVotedId === spot.id ? 'animate-bounce' : ''}>
+                                  🔥
+                                </span>
+                                <span>{hasVoted ? 'Voted (+1)' : 'Vote Karo'}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* GROUP CHAT DISPUTE RESOLVER FOOTER BANNER */}
+              <section className="bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 border border-amber-900/40 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="space-y-1 text-center sm:text-left">
+                  <h4 className="text-sm font-extrabold text-amber-300 flex items-center justify-center sm:justify-start gap-1.5">
+                    <span>⚡ Group Chat Lafda Niptaane Ka Formula</span>
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    Rule #1: Jis dukan ko sabse zyada vote mila, wahi chalenge. Rule #2: Kisi ne nakhre kiye toh "Toss Karo" ka decision final aur supreme hai.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => handleLockPlanOnWhatsApp(topSpot)}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition active:scale-95"
+                  >
+                    <Icons.WhatsApp className="w-4 h-4 text-white" />
+                    Copy WhatsApp Summary
+                  </button>
+                </div>
+              </section>
+
+            </main>
+
+            {/* --- MODAL: TOSS WINNER DECIDER POPUP --- */}
+            {tossWinner && (
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-gradient-to-b from-[#24150b] to-[#120d08] border-2 border-amber-500 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl relative animate-in fade-in zoom-in duration-200">
+                  <button
+                    onClick={() => setTossWinner(null)}
+                    className="absolute right-4 top-4 text-slate-400 hover:text-white p-1 rounded-full bg-black/40"
+                  >
+                    <Icons.Close className="w-5 h-5" />
+                  </button>
+
+                  <div className="w-16 h-16 rounded-full bg-amber-500 text-black mx-auto flex items-center justify-center text-3xl font-black mb-3 shadow-lg shadow-amber-500/40">
+                    🎯
+                  </div>
+
+                  <span className="text-[11px] font-extrabold uppercase px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                    Naseeb Ka Faisla: Toss Winner
+                  </span>
+
+                  <h3 className="text-2xl font-black text-white mt-3 mb-1">
+                    {tossWinner.name}
+                  </h3>
+                  <p className="text-sm font-semibold text-amber-400 mb-3">
+                    📍 {tossWinner.location} (~{tossWinner.distance} km)
+                  </p>
+
+                  <div className="bg-black/50 p-3.5 rounded-2xl border border-amber-900/50 text-left my-4 space-y-1.5 text-xs">
+                    <p className="text-slate-300">
+                      <strong className="text-amber-400">Must Order:</strong> {tossWinner.dish}
+                    </p>
+                    <p className="text-slate-300">
+                      <strong className="text-amber-400">Spice Level:</strong>{' '}
+                      <span className={tossWinner.spiceTier === 'Mild' ? 'text-emerald-400 font-bold' : tossWinner.spiceTier === 'Medium' ? 'text-amber-400 font-bold' : 'text-red-400 font-bold'}>
+                        {tossWinner.spiceTier === 'Mild' ? '🟢 Mild' : tossWinner.spiceTier === 'Medium' ? '🟡 Medium' : '🔴 Spicy'} ({tossWinner.spiceLevel || 4}/5 Tikha)
+                      </span>
+                    </p>
+                    <p className="text-slate-400">
+                      <strong className="text-slate-300">Parking Scene:</strong> {tossWinner.parking}
+                    </p>
+                    <p className="text-slate-400">
+                      <strong className="text-slate-300">Timings:</strong> {tossWinner.timings}
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-amber-200/80 italic mb-4">
+                    "Ustaad, ab koi nakhre nako karo! Toss ho chuka hai, seedha wahi pahuncho!"
+                  </p>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        handleVote(tossWinner.id);
+                        setTossWinner(null);
+                      }}
+                      className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs transition"
+                    >
+                      +1 Vote For Winner
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLockPlanOnWhatsApp(tossWinner);
+                        setTossWinner(null);
+                      }}
+                      className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition"
+                    >
+                      <Icons.WhatsApp className="w-4 h-4 text-white" />
+                      Send to WhatsApp
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --- MODAL: DAKHNI SLANG & HYDERABADI WARNING GLOSSARY --- */}
+            {showSlangGlossary && (
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-[#121622] border border-amber-600/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[85vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">🗣️</span>
+                      <h3 className="text-lg font-black text-white">Hyderabadi Street Slang Engine</h3>
+                    </div>
+                    <button
+                      onClick={() => setShowSlangGlossary(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      <Icons.Close className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-300 mb-4">
+                    Tap any authentic Dakhni slang alert below to test the app's real street warning audio and response:
+                  </p>
+
+                  <div className="space-y-2.5 text-xs">
+                    <button
+                      onClick={() => addToast("🛑 Kya miyan, ek hi dukan ko do do baar vote daalre? Chindi chorgiri nako karo!", "error")}
+                      className="w-full text-left p-3 rounded-xl bg-red-950/30 border border-red-900/50 hover:bg-red-900/40 transition block"
+                    >
+                      <span className="font-bold text-red-400 block mb-0.5">🛑 Already Voted Error:</span>
+                      <span className="text-slate-200">"Kya miyan, ek hi dukan ko do do baar vote daalre? Chindi chorgiri nako karo!"</span>
+                    </button>
+
+                    <button
+                      onClick={() => addToast("⚠️ Ustaad, wahan gaadi lagaye toh traffic police utha leke chal jaati! Baigan me mil jaata scene!", "warning")}
+                      className="w-full text-left p-3 rounded-xl bg-amber-950/30 border border-amber-900/50 hover:bg-amber-900/40 transition block"
+                    >
+                      <span className="font-bold text-amber-400 block mb-0.5">⚠️ Bad Parking Warning:</span>
+                      <span className="text-slate-200">"Ustaad, wahan gaadi lagaye toh traffic police utha leke chal jaati! Baigan me mil jaata scene!"</span>
+                    </button>
+
+                    <button
+                      onClick={() => addToast("🥛 Khabardaar! Meridian me extra raita mangte waqt aawaz dheemi rakho... purana itihaas hai!", "warning")}
+                      className="w-full text-left p-3 rounded-xl bg-yellow-950/30 border border-yellow-900/50 hover:bg-yellow-900/40 transition block"
+                    >
+                      <span className="font-bold text-yellow-400 block mb-0.5">🥛 Meridian Raita Protocol:</span>
+                      <span className="text-slate-200">"Khabardaar! Meridian me extra raita mangte waqt aawaz dheemi rakho... purana itihaas hai!"</span>
+                    </button>
+
+                    <button
+                      onClick={() => addToast("🚗 Masab Tank aur Panjagutta pe bumper-to-bumper jaam hai bawa! Biryani thandi ho jaati!", "warning")}
+                      className="w-full text-left p-3 rounded-xl bg-orange-950/30 border border-orange-900/50 hover:bg-orange-900/40 transition block"
+                    >
+                      <span className="font-bold text-orange-400 block mb-0.5">🚗 Traffic Jam Alert:</span>
+                      <span className="text-slate-200">"Masab Tank aur Panjagutta pe bumper-to-bumper jaam hai bawa! Biryani thandi ho jaati!"</span>
+                    </button>
+
+                    <button
+                      onClick={() => addToast("✈️ Arey bhai, Shamshabad flight pakad ke jaate kya biryani khane? Aas-paas ka filter lagao!", "warning")}
+                      className="w-full text-left p-3 rounded-xl bg-blue-950/30 border border-blue-900/50 hover:bg-blue-900/40 transition block"
+                    >
+                      <span className="font-bold text-blue-400 block mb-0.5">✈️ Distance Too Far Alert:</span>
+                      <span className="text-slate-200">"Arey bhai, Shamshabad flight pakad ke jaate kya biryani khane? Aas-paas ka filter lagao!"</span>
+                    </button>
+                  </div>
+
+                  <div className="mt-5 pt-3 border-t border-slate-800 text-center">
+                    <button
+                      onClick={() => setShowSlangGlossary(false)}
+                      className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition"
+                    >
+                      Band Karo
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --- MODAL: ADD YOUR SECRET GALI SPOT --- */}
+            {showAddModal && (
+              <AddSpotModal
+                onClose={() => setShowAddModal(false)}
+                onAdd={(newSpot) => {
+                  setSpots(prev => [newSpot, ...prev]);
+                  setShowAddModal(false);
+                  addToast(`🔥 Zabardast! "${newSpot.name}" add ho gaya group voting me!`, "success");
+                }}
+              />
+            )}
+
+            {/* --- HYDERABADI STREET SLANG TOAST SYSTEM --- */}
+            <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full px-2 pointer-events-none">
+              {toasts.map(toast => (
+                <div
+                  key={toast.id}
+                  className={`pointer-events-auto p-3.5 rounded-2xl shadow-2xl border text-xs font-medium flex items-start gap-2.5 backdrop-blur-md animate-in slide-in-from-bottom duration-200 ${
+                    toast.type === 'error'
+                      ? 'bg-red-950/90 border-red-500 text-red-100 shadow-red-950/50'
+                      : toast.type === 'warning'
+                      ? 'bg-amber-950/90 border-amber-500 text-amber-100 shadow-amber-950/50'
+                      : toast.type === 'success'
+                      ? 'bg-emerald-950/90 border-emerald-500 text-emerald-100 shadow-emerald-950/50'
+                      : 'bg-slate-900/90 border-slate-700 text-slate-100'
+                  }`}
+                >
+                  <span className="text-base shrink-0">
+                    {toast.type === 'error' ? '🛑' : toast.type === 'warning' ? '⚠️' : toast.type === 'success' ? '🔥' : 'ℹ️'}
+                  </span>
+                  <div className="flex-1 leading-snug">
+                    <div className="text-[10px] font-extrabold uppercase tracking-wide opacity-80 mb-0.5">
+                      {toast.type === 'error' ? 'Dakhni Lafda Alert' : toast.type === 'warning' ? 'Traffic / Parking Warning' : 'Biryani Update'}
+                    </div>
+                    {toast.message}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* FOOTER */}
+            <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-500 mt-12">
+              <p>Biryani Clash: Hyderabad Edition • Built for the chaotic group chat arbitrations of Deccan.</p>
+              <p className="mt-1 text-[11px] text-slate-600">Zero sponsored rankings • Authentic local spots • No more cold biryani arguments</p>
+            </footer>
+          </div>
+        );
+      }
+
+      // --- SUBCOMPONENT: ADD CUSTOM GALI SPOT MODAL ---
+      function AddSpotModal({ onClose, onAdd }) {
+        const [name, setName] = useState('');
+        const [location, setLocation] = useState('');
+        const [dish, setDish] = useState('');
+        const [parking, setParking] = useState('Road side thoda sambhal ke');
+        const [distance, setDistance] = useState(5.5);
+        const [spiceTier, setSpiceTier] = useState('Medium');
+        const [isSecretGem, setIsSecretGem] = useState(true);
+
+        const handleSubmit = (e) => {
+          e.preventDefault();
+          if (!name.trim() || !location.trim()) return;
+
+          const numericSpice = spiceTier === 'Mild' ? 2 : spiceTier === 'Medium' ? 4 : 5;
+
+          const newSpot = {
+            id: 'custom-' + Date.now(),
+            name: name.trim(),
+            location: location.trim(),
+            dish: dish.trim() || 'Dum Biryani Special',
+            parking: parking.trim(),
+            distance: parseFloat(distance) || 5.0,
+            isSecretGem,
+            votes: 1, // Starts with 1 self-vote
+            tag: isSecretGem ? 'User Secret Gali Adda' : 'Local Joint',
+            spiceTier,
+            spiceLevel: numericSpice,
+            meatType: 'Mutton / Chicken',
+            price: '₹₹',
+            timings: '12:00 PM - Late Night',
+            specialWarning: null
+          };
+
+          onAdd(newSpot);
+        };
+
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-[#121622] border border-amber-600/40 rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+              <button
+                onClick={onClose}
+                className="absolute right-4 top-4 text-slate-400 hover:text-white"
+              >
+                <Icons.Close className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl">🍛</span>
+                <h3 className="text-lg font-black text-white">Add Your Secret Gali Spot</h3>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Restaurant / Hotel Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., Al Saba, Peshawar, Shahi Dastarkhwan..."
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Area / Gali Location *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g., Mehdipatnam, Mallepally, Barkas..."
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Must Order Dish & Insider Tip</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Kacchi Dum Mutton + Double Raita"
+                    value={dish}
+                    onChange={(e) => setDish(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">Distance (km)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="1"
+                      max="20"
+                      value={distance}
+                      onChange={(e) => setDistance(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">Spice Level *</label>
+                    <select
+                      value={spiceTier}
+                      onChange={(e) => setSpiceTier(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    >
+                      <option value="Mild">🟢 Mild (Mellow Irani)</option>
+                      <option value="Medium">🟡 Medium (Classic Dum)</option>
+                      <option value="Spicy">🔴 Spicy (Tezz / Masala)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Parking Scene</label>
+                  <input
+                    type="text"
+                    value={parking}
+                    onChange={(e) => setParking(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="secretCheck"
+                    checked={isSecretGem}
+                    onChange={(e) => setIsSecretGem(e.target.checked)}
+                    className="accent-amber-500 rounded"
+                  />
+                  <label htmlFor="secretCheck" className="text-slate-300 cursor-pointer">
+                    Mark as "Secret AI-Blind Spot" (Hyper-local)
+                  </label>
+                </div>
+
+                <div className="pt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold transition shadow-lg shadow-amber-950/40"
+                  >
+                    Add Spot
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        );
+      }
+
+      // Render the App
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(<App />);
+    </script>
+  </body>
+</html>
